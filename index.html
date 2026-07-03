@@ -172,6 +172,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .popup-inp:focus{outline:none;border-color:var(--red)}
 .popup-btn{width:100%;background:var(--red);color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px}
 .popup-err{font-size:12px;color:var(--red);margin-top:8px}
+.or-div{display:flex;align-items:center;gap:10px;margin:10px 0}
+.or-line{flex:1;height:0.5px;background:rgba(255,255,255,0.1)}
+.or-text{font-size:12px;color:rgba(255,255,255,0.3)}
+.or-line-dark{flex:1;height:0.5px;background:var(--border)}
+.or-text-dark{font-size:12px;color:var(--text-muted)}
+.manual-note{font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px}
+.manual-note-dark{font-size:12px;color:var(--text-muted);margin-top:4px}
 @media(max-width:600px){
   .hero h1{font-size:32px}
   .about-grid{grid-template-columns:1fr}
@@ -302,6 +309,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input class="inp-dark" id="sell-addr" placeholder="Flat/House no., Society, Sector" style="flex:1" />
       <button class="loc-btn" onclick="getLocation('sell-addr','sell-loc-st')"><i class="ti ti-current-location"></i> GPS</button>
     </div>
+    <div class="or-div" id="sell-or-div" style="display:none"><div class="or-line"></div><div class="or-text">model not listed? type below</div><div class="or-line"></div></div>
+    <div id="sell-manual-wrap" style="display:none;margin-bottom:14px"><div class="lbl">Type your model name</div><input class="inp-dark" id="sell-manual-model" placeholder="e.g. Samsung Galaxy M12, Redmi 10A..." style="margin-bottom:4px" /><div class="manual-note"><i class="ti ti-info-circle"></i> Type exact model name for accurate pricing</div></div>
     <div class="loc-status" id="sell-loc-st"></div>
     <div class="price-box" id="sell-result" style="display:none">
       <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:4px">Estimated value range</div>
@@ -347,6 +356,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div><div class="rep-lbl">Select model</div>
         <select class="rep-sel" id="rep-model"><option value="">Select brand first</option></select></div>
     </div>
+    <div class="or-div" id="rep-or-div" style="display:none;border-color:var(--border)"><div class="or-line-dark"></div><div class="or-text-dark">model not listed? type below</div><div class="or-line-dark"></div></div>
+    <div id="rep-manual-wrap" style="display:none;margin-bottom:14px"><div class="rep-lbl">Type your model name</div><input class="rep-inp" id="rep-manual-model" placeholder="e.g. Samsung Galaxy M12, Redmi 10A..." style="margin-bottom:4px" /><div class="manual-note-dark"><i class="ti ti-info-circle"></i> Type exact model name for accurate pricing</div></div>
     <div class="rep-lbl" style="margin-bottom:10px">Select issue (can pick multiple)</div>
     <div class="issue-grid">
       <div class="issue-btn" onclick="toggleIssue(this,'Screen repair')"><i class="ti ti-device-mobile"></i> Screen</div>
@@ -562,6 +573,8 @@ function loadSellModels(){
   var b=document.getElementById('sell-brand').value,s=document.getElementById('sell-model');
   s.innerHTML='<option value="">Select model</option>';
   document.getElementById('sell-result').style.display='none';
+  document.getElementById('sell-or-div').style.display='none';
+  document.getElementById('sell-manual-wrap').style.display='none';
   document.getElementById('sell-wa').style.display='none';
   if(b&&M[b])M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
 }
@@ -575,6 +588,7 @@ function showSellWA(){
 }
 function sendSellWA(){
   var b=document.getElementById('sell-brand').value,m=document.getElementById('sell-model').value;
+  var manualModel=document.getElementById('sell-manual-model').value.trim();
   var addr=document.getElementById('sell-addr').value.trim()||'Not provided';
   var pv=document.getElementById('sell-price-val').textContent;
   waOpen(cInfo()+'\n\nService: Sell old phone\nPhone: '+b+' '+m+'\nEstimated value: '+pv+'\nAddress: '+addr+'\n\nPlease confirm pickup time and final price.');
@@ -594,8 +608,10 @@ function sendRepairWA(){
   if(!b){alert('Please select a brand.');return;}
   if(!m||m==='Select model'||m==='Select brand first'){alert('Please select a model.');return;}
   if(selectedIssues.length===0){alert('Please select at least one issue.');return;}
+  var repManualModel=document.getElementById('rep-manual-model').value.trim();
   var addr=document.getElementById('rep-addr').value.trim()||'Not provided';
-  waOpen(cInfo()+'\n\nService: Repair\nPhone: '+b+' '+m+'\nIssue(s): '+selectedIssues.join(', ')+'\nAddress: '+addr+'\n\nPlease confirm pickup time.');
+  var repFinalModel=repManualModel?m+' (typed: '+repManualModel+')':m;
+  waOpen(cInfo()+'\n\nService: Repair\nPhone: '+b+' '+repFinalModel+'\nIssue(s): '+selectedIssues.join(', ')+'\nAddress: '+addr+'\n\nPlease confirm pickup time.');
 }
 function quickRepair(issue){waOpen(cInfo()+'\n\nService: Quick repair\nIssue: '+issue+'\nAddress: Dwarka (will confirm)\n\nPlease confirm pickup time.');}
 function showTab(t,el){
