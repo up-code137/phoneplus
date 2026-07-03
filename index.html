@@ -354,7 +354,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option>Apple</option><option>Samsung</option><option>Google</option><option>OnePlus</option><option>Xiaomi</option><option>Redmi</option><option>POCO</option><option>Vivo</option><option>Oppo</option><option>Realme</option><option>Nothing</option><option>Motorola</option><option>iQOO</option><option>Infinix</option><option>Tecno</option><option>Nokia</option><option>Other</option>
         </select></div>
       <div><div class="rep-lbl">Select model</div>
-        <select class="rep-sel" id="rep-model"><option value="">Select brand first</option></select></div>
+        <select class="rep-sel" id="rep-model" onchange="repModelChanged()"><option value="">Select brand first</option></select></div>
     </div>
     <div class="or-div" id="rep-or-div" style="display:none;border-color:var(--border)"><div class="or-line-dark"></div><div class="or-text-dark">model not listed? type below</div><div class="or-line-dark"></div></div>
     <div id="rep-manual-wrap" style="display:none;margin-bottom:14px"><div class="rep-lbl">Type your model name</div><input class="rep-inp" id="rep-manual-model" placeholder="e.g. Samsung Galaxy M12, Redmi 10A..." style="margin-bottom:4px" /><div class="manual-note-dark"><i class="ti ti-info-circle"></i> Type exact model name for accurate pricing</div></div>
@@ -576,15 +576,20 @@ function loadSellModels(){
   document.getElementById('sell-wa').style.display='none';
   document.getElementById('sell-or-div').style.display='none';
   document.getElementById('sell-manual-wrap').style.display='none';
-  if(b&&M[b]){
-    M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
-    document.getElementById('sell-or-div').style.display='flex';
-    document.getElementById('sell-manual-wrap').style.display='block';
-  }
+  if(b&&M[b])M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
 }
 function showSellWA(){
   var b=document.getElementById('sell-brand').value,m=document.getElementById('sell-model').value;
   if(!b||!m)return;
+  if(m==='Older model'||m==='Other model'){
+    document.getElementById('sell-or-div').style.display='flex';
+    document.getElementById('sell-manual-wrap').style.display='block';
+    document.getElementById('sell-result').style.display='none';
+    document.getElementById('sell-wa').style.display='flex';
+    return;
+  }
+  document.getElementById('sell-or-div').style.display='none';
+  document.getElementById('sell-manual-wrap').style.display='none';
   var orig=(P[b]&&P[b][m])?P[b][m]:10000;
   document.getElementById('sell-price-val').textContent='₹'+Math.round(orig*0.15).toLocaleString('en-IN')+' – ₹'+Math.round(orig*0.75).toLocaleString('en-IN');
   document.getElementById('sell-result').style.display='block';
@@ -603,10 +608,16 @@ function loadRepairModels(){
   s.innerHTML='<option value="">Select model</option>';
   document.getElementById('rep-or-div').style.display='none';
   document.getElementById('rep-manual-wrap').style.display='none';
-  if(b&&M[b]){
-    M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
+  if(b&&M[b])M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
+}
+function repModelChanged(){
+  var m=document.getElementById('rep-model').value;
+  if(m==='Older model'||m==='Other model'){
     document.getElementById('rep-or-div').style.display='flex';
     document.getElementById('rep-manual-wrap').style.display='block';
+  } else {
+    document.getElementById('rep-or-div').style.display='none';
+    document.getElementById('rep-manual-wrap').style.display='none';
   }
 }
 function toggleIssue(el,issue){
