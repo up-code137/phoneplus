@@ -573,10 +573,14 @@ function loadSellModels(){
   var b=document.getElementById('sell-brand').value,s=document.getElementById('sell-model');
   s.innerHTML='<option value="">Select model</option>';
   document.getElementById('sell-result').style.display='none';
+  document.getElementById('sell-wa').style.display='none';
   document.getElementById('sell-or-div').style.display='none';
   document.getElementById('sell-manual-wrap').style.display='none';
-  document.getElementById('sell-wa').style.display='none';
-  if(b&&M[b])M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
+  if(b&&M[b]){
+    M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
+    document.getElementById('sell-or-div').style.display='flex';
+    document.getElementById('sell-manual-wrap').style.display='block';
+  }
 }
 function showSellWA(){
   var b=document.getElementById('sell-brand').value,m=document.getElementById('sell-model').value;
@@ -589,14 +593,21 @@ function showSellWA(){
 function sendSellWA(){
   var b=document.getElementById('sell-brand').value,m=document.getElementById('sell-model').value;
   var manualModel=document.getElementById('sell-manual-model').value.trim();
+  var finalModel=manualModel?m+' (customer note: '+manualModel+')':m;
   var addr=document.getElementById('sell-addr').value.trim()||'Not provided';
   var pv=document.getElementById('sell-price-val').textContent;
-  waOpen(cInfo()+'\n\nService: Sell old phone\nPhone: '+b+' '+m+'\nEstimated value: '+pv+'\nAddress: '+addr+'\n\nPlease confirm pickup time and final price.');
+  waOpen(cInfo()+'\n\nService: Sell old phone\nPhone: '+b+' '+finalModel+'\nEstimated value: '+pv+'\nAddress: '+addr+'\n\nPlease confirm pickup time and final price.');
 }
 function loadRepairModels(){
   var b=document.getElementById('rep-brand').value,s=document.getElementById('rep-model');
   s.innerHTML='<option value="">Select model</option>';
-  if(b&&M[b])M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
+  document.getElementById('rep-or-div').style.display='none';
+  document.getElementById('rep-manual-wrap').style.display='none';
+  if(b&&M[b]){
+    M[b].forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});
+    document.getElementById('rep-or-div').style.display='flex';
+    document.getElementById('rep-manual-wrap').style.display='block';
+  }
 }
 function toggleIssue(el,issue){
   var idx=selectedIssues.indexOf(issue);
