@@ -304,11 +304,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div><div class="lbl">Select model</div>
         <select class="sel" id="sell-model" onchange="showSellWA()"><option value="">Select brand first</option></select></div>
     </div>
-    <div class="lbl" style="margin-bottom:5px">Your address</div>
-    <div class="loc-row">
-      <input class="inp-dark" id="sell-addr" placeholder="Flat/House no., Society, Sector" style="flex:1" />
-      <button class="loc-btn" onclick="getLocation('sell-addr','sell-loc-st')"><i class="ti ti-current-location"></i> GPS</button>
+    <div class="lbl" style="margin-bottom:8px">Your location</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+      <div><div class="lbl">Select sector</div>
+        <select class="sel" id="sell-sector">
+          <option value="">Choose sector</option>
+          <option>Sector 3</option><option>Sector 4</option><option>Sector 5</option><option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option><option>Sector 11</option><option>Sector 12</option><option>Sector 13</option><option>Sector 14</option><option>Sector 15</option><option>Sector 16</option><option>Sector 17</option><option>Sector 18</option><option>Sector 19</option>
+        </select>
+      </div>
+      <div><div class="lbl">Society / Apartment</div>
+        <input class="inp-dark" id="sell-society" placeholder="e.g. Green Valley, DDA Flats" />
+      </div>
     </div>
+    <div style="margin-bottom:10px">
+      <div class="lbl" style="margin-bottom:5px">Flat / House number</div>
+      <div class="loc-row">
+        <input class="inp-dark" id="sell-flat" placeholder="e.g. Flat 302, House 45" style="flex:1" />
+        <button class="loc-btn" onclick="getLocationSell()"><i class="ti ti-current-location"></i> GPS</button>
+      </div>
+    </div>
+    <div class="loc-status" id="sell-loc-st"></div>
     <div class="or-div" id="sell-or-div" style="display:none"><div class="or-line"></div><div class="or-text">model not listed? type below</div><div class="or-line"></div></div>
     <div id="sell-manual-wrap" style="display:none;margin-bottom:14px"><div class="lbl">Type your model name</div><input class="inp-dark" id="sell-manual-model" placeholder="e.g. Samsung Galaxy M12, Redmi 10A..." style="margin-bottom:4px" /><div class="manual-note"><i class="ti ti-info-circle"></i> Type exact model name for accurate pricing</div></div>
     <div class="loc-status" id="sell-loc-st"></div>
@@ -367,10 +382,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="issue-btn" onclick="toggleIssue(this,'Camera repair')"><i class="ti ti-camera"></i> Camera</div>
       <div class="issue-btn" onclick="toggleIssue(this,'Body/crack repair')"><i class="ti ti-square"></i> Body / cracks</div>
     </div>
-    <div class="rep-lbl" style="margin-bottom:5px">Your address</div>
-    <div class="rep-loc-row">
-      <input class="rep-inp" id="rep-addr" placeholder="Flat/House no., Society, Sector" style="flex:1" />
-      <button class="rep-loc-btn" onclick="getLocation('rep-addr','rep-loc-st')"><i class="ti ti-current-location"></i> GPS</button>
+    <div class="rep-lbl" style="margin-bottom:8px">Your location</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+      <div><div class="rep-lbl">Select sector</div>
+        <select class="rep-sel" id="rep-sector">
+          <option value="">Choose sector</option>
+          <option>Sector 3</option><option>Sector 4</option><option>Sector 5</option><option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option><option>Sector 11</option><option>Sector 12</option><option>Sector 13</option><option>Sector 14</option><option>Sector 15</option><option>Sector 16</option><option>Sector 17</option><option>Sector 18</option><option>Sector 19</option>
+        </select>
+      </div>
+      <div><div class="rep-lbl">Society / Apartment</div>
+        <input class="rep-inp" id="rep-society" placeholder="e.g. Green Valley, DDA Flats" />
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div class="rep-lbl" style="margin-bottom:5px">Flat / House number</div>
+      <div class="rep-loc-row">
+        <input class="rep-inp" id="rep-flat" placeholder="e.g. Flat 302, House 45" style="flex:1" />
+        <button class="rep-loc-btn" onclick="getLocationRep()"><i class="ti ti-current-location"></i> GPS</button>
+      </div>
     </div>
     <div class="loc-status" id="rep-loc-st" style="margin-bottom:14px"></div>
     <button class="rep-wa-btn" onclick="sendRepairWA()"><i class="ti ti-brand-whatsapp"></i> Send repair query on WhatsApp</button>
@@ -550,8 +579,8 @@ function cInfo(){return 'Customer: '+cName+' | Phone: +91'+cPhone;}
 function waOpen(msg){window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(msg),'_blank');}
 function accWA(p){waOpen(cInfo()+'\n\nAccessory enquiry: '+p+'\nPlease share availability and delivery details.');}
 function deadPhoneWA(){waOpen(cInfo()+'\n\nI have a dead phone (not turning on) that I want to sell.\nPlease advise on the value and pickup.');}
-function getLocation(fid,sid){
-  var st=document.getElementById(sid);
+function getLocationSell(){
+  var st=document.getElementById('sell-loc-st');
   if(!navigator.geolocation){st.textContent='GPS not supported.';st.className='loc-status loc-err';return;}
   st.textContent='Detecting location...';st.className='loc-status';
   navigator.geolocation.getCurrentPosition(function(pos){
@@ -561,13 +590,36 @@ function getLocation(fid,sid){
     fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng)
       .then(function(r){return r.json();})
       .then(function(d){
-        var a=d.address,parts=[];
-        if(a.road)parts.push(a.road);
-        if(a.suburb)parts.push(a.suburb);
-        document.getElementById(fid).value=parts.join(', ')||'Dwarka';
-        st.textContent='Location detected — add flat/house number if needed.';st.className='loc-status loc-ok';
-      }).catch(function(){st.textContent='Could not fetch address. Please type manually.';st.className='loc-status loc-err';});
-  },function(){st.textContent='Permission denied. Please type your address manually.';st.className='loc-status loc-err';});
+        var a=d.address;
+        if(a.suburb){
+          var sec=a.suburb.match(/Sector\s*\d+/i);
+          if(sec){var s=document.getElementById('sell-sector');for(var i=0;i<s.options.length;i++){if(s.options[i].value===sec[0]){s.selectedIndex=i;break;}}}
+        }
+        if(a.road||a.neighbourhood){document.getElementById('sell-society').value=a.road||a.neighbourhood||'';}
+        st.textContent='Location detected — add flat/house number.';st.className='loc-status loc-ok';
+      }).catch(function(){st.textContent='Could not fetch. Type manually.';st.className='loc-status loc-err';});
+  },function(){st.textContent='Permission denied. Please type manually.';st.className='loc-status loc-err';});
+}
+function getLocationRep(){
+  var st=document.getElementById('rep-loc-st');
+  if(!navigator.geolocation){st.textContent='GPS not supported.';st.className='loc-status loc-err';return;}
+  st.textContent='Detecting location...';st.className='loc-status';
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude,lng=pos.coords.longitude;
+    var inDwarka=(lat>=28.55&&lat<=28.62&&lng>=76.98&&lng<=77.08);
+    if(!inDwarka){st.textContent='Sorry, your location is outside Dwarka Sectors 3-19.';st.className='loc-status loc-err';return;}
+    fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng)
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var a=d.address;
+        if(a.suburb){
+          var sec=a.suburb.match(/Sector\s*\d+/i);
+          if(sec){var s=document.getElementById('rep-sector');for(var i=0;i<s.options.length;i++){if(s.options[i].value===sec[0]){s.selectedIndex=i;break;}}}
+        }
+        if(a.road||a.neighbourhood){document.getElementById('rep-society').value=a.road||a.neighbourhood||'';}
+        st.textContent='Location detected — add flat/house number.';st.className='loc-status loc-ok';
+      }).catch(function(){st.textContent='Could not fetch. Type manually.';st.className='loc-status loc-err';});
+  },function(){st.textContent='Permission denied. Please type manually.';st.className='loc-status loc-err';});
 }
 function loadSellModels(){
   var b=document.getElementById('sell-brand').value,s=document.getElementById('sell-model');
@@ -599,7 +651,10 @@ function sendSellWA(){
   var b=document.getElementById('sell-brand').value,m=document.getElementById('sell-model').value;
   var manualModel=document.getElementById('sell-manual-model').value.trim();
   var finalModel=manualModel?m+' (customer note: '+manualModel+')':m;
-  var addr=document.getElementById('sell-addr').value.trim()||'Not provided';
+  var sector=document.getElementById('sell-sector').value||'Not selected';
+  var society=document.getElementById('sell-society').value.trim()||'';
+  var flat=document.getElementById('sell-flat').value.trim()||'';
+  var addr=[flat,society,sector,'Dwarka, New Delhi'].filter(Boolean).join(', ');
   var pv=document.getElementById('sell-price-val').textContent;
   waOpen(cInfo()+'\n\nService: Sell old phone\nPhone: '+b+' '+finalModel+'\nEstimated value: '+pv+'\nAddress: '+addr+'\n\nPlease confirm pickup time and final price.');
 }
@@ -631,8 +686,11 @@ function sendRepairWA(){
   if(!m||m==='Select model'||m==='Select brand first'){alert('Please select a model.');return;}
   if(selectedIssues.length===0){alert('Please select at least one issue.');return;}
   var repManualModel=document.getElementById('rep-manual-model').value.trim();
-  var addr=document.getElementById('rep-addr').value.trim()||'Not provided';
   var repFinalModel=repManualModel?m+' (typed: '+repManualModel+')':m;
+  var sector=document.getElementById('rep-sector').value||'Not selected';
+  var society=document.getElementById('rep-society').value.trim()||'';
+  var flat=document.getElementById('rep-flat').value.trim()||'';
+  var addr=[flat,society,sector,'Dwarka, New Delhi'].filter(Boolean).join(', ');
   waOpen(cInfo()+'\n\nService: Repair\nPhone: '+b+' '+repFinalModel+'\nIssue(s): '+selectedIssues.join(', ')+'\nAddress: '+addr+'\n\nPlease confirm pickup time.');
 }
 function quickRepair(issue){waOpen(cInfo()+'\n\nService: Quick repair\nIssue: '+issue+'\nAddress: Dwarka (will confirm)\n\nPlease confirm pickup time.');}
